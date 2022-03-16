@@ -7,6 +7,11 @@
 # useful for handling different item types with a single interface
 import pathlib
 import sqlite3
+import time
+
+import slackweb
+
+from .secrets import SLACK_URL
 
 
 class OneWayGoPipeline:
@@ -43,8 +48,9 @@ class OneWayGoPipeline:
 
     def process_item(self, item, spider):
         is_saved = self.save_item(item)
-        if is_saved:
+        if is_saved and item['is_available']:
             self.send_slack(item)
+            time.sleep(1)
 
         return item
 
@@ -113,4 +119,32 @@ class OneWayGoPipeline:
         return cur.fetchone()
 
     def send_slack(self, item):
-        
+        slack = slackweb.Slack(url=SLACK_URL)
+
+        departure_shop = item['departure_shop']
+        arrival_shop = item['arrival_shop']
+        car = item['car']
+        car_capacity = item['car_capacity']
+        departure_since = item['departure_since']
+        departure_until = item['departure_until']
+
+        attachments = [{
+            'color': '#36a64f',
+            'fields': [
+                {
+                    'title': '区間',
+                    'value': f'{departure_shop} → {arrival_shop}',
+                },
+                {
+                    'title': '車',
+                    'value': f'{car}（{car_capacity}人乗り）',
+                    'short': 'true',
+                },
+                {
+                    'title': '出発期間',
+                    'value': f'{departure_since} 〜 {departure_until}',
+                    'short': 'true',
+                },
+            ],
+        }]
+        slack.notify(text='新しい片道GO!', attachments=attachments)
