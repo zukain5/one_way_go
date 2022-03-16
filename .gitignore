@@ -2,3 +2,5 @@
 *.csv
 *.db
 secrets.py
+*.log
+__pycache__/
