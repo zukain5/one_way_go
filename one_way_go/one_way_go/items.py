@@ -7,6 +7,11 @@ import scrapy
 
 
 class OneWayGoItem(scrapy.Item):
-    # define the fields for your item here like:
-    # name = scrapy.Field()
-    pass
+    departure_shop = scrapy.Field()
+    arrival_shop = scrapy.Field()
+    car = scrapy.Field()
+    car_capacity = scrapy.Field()
+    departure_since = scrapy.Field()
+    departure_until = scrapy.Field()
+    reserve_shop = scrapy.Field()
+    reserve_number = scrapy.Field()
