@@ -5,9 +5,104 @@
 
 
 # useful for handling different item types with a single interface
-from itemadapter import ItemAdapter
+import pathlib
+import sqlite3
 
 
 class OneWayGoPipeline:
+    """
+    参考:https://qiita.com/Chanmoro/items/f4df85eb73b18d902739
+    """
+    _db = None
+
+    @classmethod
+    def get_database(cls):
+        cls._db = sqlite3.connect(
+            pathlib.Path().cwd() / 'one_way_go.db'
+        )
+
+        cur = cls._db.cursor()
+        sql = '''
+            CREATE TABLE IF NOT EXISTS one_way_go(
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                departure_shop TEXT NOT NULL,
+                arrival_shop TEXT NOT NULL,
+                car TEXT NOT NULL,
+                car_number INTEGER NOT NULL,
+                car_capacity INTEGER NOT NULL,
+                departure_since TEXT NOT NULL,
+                departure_until TEXT NOT NULL,
+                reserve_shop TEXT,
+                reserve_number TEXT,
+                is_available INTEGER NOT NULL
+            );
+        '''
+        cur.execute(sql)
+
+        return cls._db
+
     def process_item(self, item, spider):
+        self.save_item(item)
         return item
+
+    def save_item(self, item):
+        if self.find_item(
+            item['departure_shop'],
+            item['arrival_shop'],
+            item['car'],
+            item['car_number'],
+            item['departure_since'],
+            item['departure_until']
+        ):
+            return
+
+        db = self.get_database()
+        sql = '''
+            INSERT INTO
+                one_way_go
+                (departure_shop, arrival_shop, car, car_number, car_capacity, departure_since,
+                 departure_until, reserve_shop, reserve_number, is_available)
+            VALUES
+                (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+        '''
+        db.execute(sql, (
+            item['departure_shop'],
+            item['arrival_shop'],
+            item['car'],
+            item['car_number'],
+            item['car_capacity'],
+            item['departure_since'],
+            item['departure_until'],
+            item['reserve_shop'],
+            item['reserve_number'],
+            int(item['is_available']),
+        ))
+        db.commit()
+
+    def find_item(self, departure_shop, arrival_shop,
+                  car, car_number, departure_since, departure_until):
+        db = self.get_database()
+        sql = '''
+            SELECT
+                *
+            FROM
+                one_way_go
+            WHERE
+                departure_shop=?
+                AND arrival_shop=?
+                AND car=?
+                AND car_number=?
+                AND departure_since=?
+                AND departure_until=?
+        '''
+
+        cur = db.execute(sql, (
+            departure_shop,
+            arrival_shop,
+            car,
+            car_number,
+            departure_since,
+            departure_until,
+        ))
+
+        return cur.fetchone()
