@@ -5,6 +5,7 @@ name = "pypi"
 
 [packages]
 scrapy = "*"
+slackweb = "*"
 
 [dev-packages]
 autopep8 = "*"

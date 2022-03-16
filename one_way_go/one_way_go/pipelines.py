@@ -42,7 +42,10 @@ class OneWayGoPipeline:
         return cls._db
 
     def process_item(self, item, spider):
-        self.save_item(item)
+        is_saved = self.save_item(item)
+        if is_saved:
+            self.send_slack(item)
+
         return item
 
     def save_item(self, item):
@@ -54,7 +57,7 @@ class OneWayGoPipeline:
             item['departure_since'],
             item['departure_until']
         ):
-            return
+            return False
 
         db = self.get_database()
         sql = '''
@@ -78,6 +81,8 @@ class OneWayGoPipeline:
             int(item['is_available']),
         ))
         db.commit()
+
+        return True
 
     def find_item(self, departure_shop, arrival_shop,
                   car, car_number, departure_since, departure_until):
@@ -106,3 +111,6 @@ class OneWayGoPipeline:
         ))
 
         return cur.fetchone()
+
+    def send_slack(self, item):
+        
