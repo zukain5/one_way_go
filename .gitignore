@@ -1,3 +1,4 @@
 .scrapy/
 *.csv
 *.db
+secrets.py
