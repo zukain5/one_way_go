@@ -132,8 +132,14 @@ class OneWayGoPipeline:
             'color': '#36a64f',
             'fields': [
                 {
-                    'title': '区間',
-                    'value': f'{departure_shop} → {arrival_shop}',
+                    'title': '出発',
+                    'value': departure_shop,
+                    'short': 'true',
+                },
+                {
+                    'title': '到着',
+                    'value': arrival_shop,
+                    'short': 'true',
                 },
                 {
                     'title': '車',
