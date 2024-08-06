@@ -32,9 +32,8 @@ class OneWayGoPipeline:
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
                 departure_shop TEXT NOT NULL,
                 arrival_shop TEXT NOT NULL,
-                car TEXT NOT NULL,
-                car_number INTEGER NOT NULL,
-                car_capacity INTEGER NOT NULL,
+                car_info TEXT NOT NULL,
+                car_capacity TEXT NOT NULL,
                 departure_since TEXT NOT NULL,
                 departure_until TEXT NOT NULL,
                 reserve_shop TEXT,
@@ -58,8 +57,7 @@ class OneWayGoPipeline:
         if self.find_item(
             item['departure_shop'],
             item['arrival_shop'],
-            item['car'],
-            item['car_number'],
+            item['car_info'],
             item['departure_since'],
             item['departure_until']
         ):
@@ -69,16 +67,15 @@ class OneWayGoPipeline:
         sql = '''
             INSERT INTO
                 one_way_go
-                (departure_shop, arrival_shop, car, car_number, car_capacity, departure_since,
+                (departure_shop, arrival_shop, car_info, car_capacity, departure_since,
                  departure_until, reserve_shop, reserve_number, is_available)
             VALUES
-                (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                (?, ?, ?, ?, ?, ?, ?, ?, ?)
         '''
         db.execute(sql, (
             item['departure_shop'],
             item['arrival_shop'],
-            item['car'],
-            item['car_number'],
+            item['car_info'],
             item['car_capacity'],
             item['departure_since'],
             item['departure_until'],
@@ -91,7 +88,7 @@ class OneWayGoPipeline:
         return True
 
     def find_item(self, departure_shop, arrival_shop,
-                  car, car_number, departure_since, departure_until):
+                  car_info, departure_since, departure_until):
         db = self.get_database()
         sql = '''
             SELECT
@@ -101,8 +98,7 @@ class OneWayGoPipeline:
             WHERE
                 departure_shop=?
                 AND arrival_shop=?
-                AND car=?
-                AND car_number=?
+                AND car_info=?
                 AND departure_since=?
                 AND departure_until=?
         '''
@@ -110,8 +106,7 @@ class OneWayGoPipeline:
         cur = db.execute(sql, (
             departure_shop,
             arrival_shop,
-            car,
-            car_number,
+            car_info,
             departure_since,
             departure_until,
         ))
@@ -123,7 +118,7 @@ class OneWayGoPipeline:
 
         departure_shop = item['departure_shop']
         arrival_shop = item['arrival_shop']
-        car = item['car']
+        car_info = item['car_info']
         car_capacity = item['car_capacity']
         departure_since = item['departure_since']
         departure_until = item['departure_until']
@@ -143,7 +138,7 @@ class OneWayGoPipeline:
                 },
                 {
                     'title': '車',
-                    'value': f'{car}（{car_capacity}人乗り）',
+                    'value': f'{car_info}（{car_capacity}）',
                     'short': 'true',
                 },
                 {

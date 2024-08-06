@@ -9,8 +9,7 @@ import scrapy
 class OneWayGoItem(scrapy.Item):
     departure_shop = scrapy.Field()
     arrival_shop = scrapy.Field()
-    car = scrapy.Field()
-    car_number = scrapy.Field()
+    car_info = scrapy.Field()
     car_capacity = scrapy.Field()
     departure_since = scrapy.Field()
     departure_until = scrapy.Field()

@@ -13,7 +13,7 @@ class OneWayGoSpiderSpider(scrapy.Spider):
         one_way_go_items = response.css('ul#service-items-shop-type-start')
         for one_way_go_item in one_way_go_items.css('div.service-item__body'):
             car_info = (one_way_go_item.css('div.service-item__info__car-type p::text')[1]
-                        .extract().split('　'))
+                        .extract())
             car_condition = (one_way_go_item.css('div.service-item__info__condition p::text')[1]
                              .extract())
             departure_range = (one_way_go_item.css('div.service-item__info__date::text')[1]
@@ -23,9 +23,8 @@ class OneWayGoSpiderSpider(scrapy.Spider):
                                 .extract().strip()),
                 arrival_shop=(one_way_go_item.css('div.service-item__shop-return p::text')[2]
                               .extract().strip()),
-                car=car_info[0],
-                car_number=re.sub(r'\D', '', car_info[1]),
-                car_capacity=re.sub(r'\D', '', car_condition),
+                car_info=car_info,
+                car_capacity=car_condition,
                 departure_since=departure_range.partition(' ～ ')[0],
                 departure_until=departure_range.partition(' ～ ')[-1],
                 reserve_shop='',    # TODO
